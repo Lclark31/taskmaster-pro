@@ -3,9 +3,7 @@ var tasks = {};
 var createTask = function (taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $('<li>').addClass('list-group-item');
-  var taskSpan = $('<span>')
-    .addClass('badge badge-primary badge-pill')
-    .text(taskDate);
+  var taskSpan = $('<span>').addClass('badge badge-primary badge-pill').text(taskDate);
   var taskP = $('<p>').addClass('m-1').text(taskText);
 
   // append span and p element to parent li
@@ -130,10 +128,7 @@ $(`.list-group`).on(`click`, `span`, function () {
   .text()
   .trim();
 
-  let dateInput = $(`<input>`)
-    .attr(`type`, `text`)
-    .addClass(`form-control`)
-    .val(date);
+  let dateInput = $(`<input>`).attr(`type`, `text`).addClass(`form-control`).val(date);
 
   $(this).replaceWith(dateInput);
 
@@ -163,12 +158,76 @@ $(`.list-group`).on(`blur`, `input[type="text"]`, function () {
   saveTasks();
 
   // recreate span element using bootstrap
-  let taskSpan = $(`<span>`)
-    .addClass(`badge badge-primary badge-pill`)
-    .text(date);
+  let taskSpan = $(`<span>`).addClass(`badge badge-primary badge-pill`).text(date);
 
   // replace the input with the new span
   $(this).replaceWith(taskSpan);
+});
+
+$(`.card .list-group`).sortable({
+  connectWith: $(`.card .list-group`),
+  scroll: false,
+  tolerance: `pointer`,
+  helper: `clone`,
+  activate: function (event) {
+    console.log(`activate`, this);
+  },
+  deactivate: function (event) {
+    console.log(`deactivate`, this);
+  },
+  over: function (event) {
+    console.log(`over`, event.target);
+  },
+  out: function (event) {
+    console.log(`out`, event.target);
+  },
+  update: function (event) {
+    let tempArr = [];
+
+    $(this)
+      .children()
+      .each(function () {
+        //prettier-ignore
+        let text = $(this)
+        .find(`p`)
+        .text()
+        .trim();
+        //prettier-ignore
+        let date = $(this)
+        .find(`span`)
+        .text()
+        .trim();
+
+        tempArr.push({
+          text: text,
+          date,
+          date,
+        });
+      });
+
+    //prettier-ignore
+    let arrName = $(this)
+    .attr(`id`)
+    .replace(`list-`, ``);
+
+    tasks[arrName] = tempArr;
+    saveTasks();
+  },
+});
+
+$(`#trash`).droppable({
+  accept: `.card .list-group-item`,
+  tolerance: `touch`,
+  drop: function (event, ui) {
+    ui.draggable.remove();
+    console.log(`drop`);
+  },
+  over: function (event, ui) {
+    console.log(`over`);
+  },
+  out: function (event, ui) {
+    console.log(`out`);
+  },
 });
 // load tasks for the first time
 loadTasks();
